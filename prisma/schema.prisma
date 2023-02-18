@@ -10,26 +10,81 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TierTypes {
+  FREE
+  BASIC
+  PREMIUM
+  PRO
+  ENTERPRISE
+}
 
+model Users {
+  id        String     @id @default(uuid())
+  name      String
+  email     String
+  accounts  Accounts[]
+  tier      Tier       @relation(fields: [tierId], references: [id])
+  stripe    Stripe?    @relation(fields: [stripeId], references: [id])
+  stripeId  String     @unique
+  tierId    String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
 
-model Users{
-  id   String @id @default(uuid())
-  name String
-  email String
-  accounts Accounts[]
+model Accounts {
+  id             String   @id @default(uuid())
+  name           String
+  url            String
+  users          Users[]
+  profile        String
+  banner         String
+  owner          String
+  primaryColor   String
+  secondaryColor String
+  seo            SEO?     @relation(fields: [seoId], references: [id])
+  seoId          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Tier {
+  id        String    @id @default(uuid())
+  name      String
+  price     Int
+  type      TierTypes
+  user      Users[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Stripe {
+  id                                   String   @id @default(uuid())
+  user                                 Users?
+  stripeId                             String
+  stripeSubscriptionId                 String
+  stripeCustomerId                     String
+  stripeSubscriptionStatus             String
+  stripeSubscriptionCancelAtPeriodEnd  Boolean
+  stripeSubscriptionCurrentPeriodEnd   DateTime
+  stripeSubscriptionCurrentPeriodStart DateTime
+  stripeSubscriptionEndedAt            DateTime
+}
+
+model StripeWebhook {
+  id        String   @id @default(uuid())
+  stripeId  String
+  type      String
+  data      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Accounts {
-  id   String @id @default(uuid())
-  name String
-  url String
-  users Users[]
-  profile String
-  banner String
-  primaryColor String
-  secondaryColor String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model SEO {
+  id          String    @id @default(uuid())
+  account     Accounts?
+  title       String
+  description String
+  image       String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
