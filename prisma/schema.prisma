@@ -18,33 +18,80 @@ enum TierTypes {
   ENTERPRISE
 }
 
+enum SEOPageType {
+  HOME
+  ABOUT
+  CONTACT
+  BLOG
+  BLOG_POST
+  PRODUCT
+}
+
+enum BusinessType {
+  ECOMMERCE
+  SERVICE
+  BLOG
+  SAAS
+}
+
+enum BusinessSuccessOutcomes {
+  CLICKS
+  LEADS
+  SALES
+  SUBSCRIPTIONS
+  DONATIONS
+  OTHER
+}
+
 model Users {
   id        String     @id @default(uuid())
   name      String
   email     String
   accounts  Accounts[]
   tier      Tier       @relation(fields: [tierId], references: [id])
-  stripe    Stripe?    @relation(fields: [stripeId], references: [id])
-  stripeId  String     @unique
+  stripe    Stripe?
   tierId    String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
 
 model Accounts {
-  id             String   @id @default(uuid())
-  name           String
-  url            String
-  users          Users[]
-  profile        String
-  banner         String
-  owner          String
-  primaryColor   String
-  secondaryColor String
-  seo            SEO?     @relation(fields: [seoId], references: [id])
-  seoId          String   @unique
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              String                  @id @default(uuid())
+  name            String
+  url             String
+  users           Users[]
+  profile         String
+  banner          String
+  owner           String
+  primaryColor    String
+  secondaryColor  String
+  businessTypes   BusinessTypes[]
+  successOutcomes SuccessOutcomes[]
+  successOutcome  BusinessSuccessOutcomes
+  seo             SEO?                    @relation(fields: [seoId], references: [id])
+  seoId           String                  @unique
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+}
+
+model BusinessTypes {
+  id          String       @id @default(uuid())
+  account     Accounts[]
+  name        BusinessType @unique
+  display     String
+  description String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model SuccessOutcomes {
+  id          String                  @id @default(uuid())
+  account     Accounts[]
+  name        BusinessSuccessOutcomes @unique
+  display     String
+  description String
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
 }
 
 model Tier {
@@ -59,7 +106,8 @@ model Tier {
 
 model Stripe {
   id                                   String   @id @default(uuid())
-  user                                 Users?
+  user                                 Users    @relation(fields: [userId], references: [id])
+  userId                               String   @unique
   stripeId                             String
   stripeSubscriptionId                 String
   stripeCustomerId                     String
@@ -80,11 +128,43 @@ model StripeWebhook {
 }
 
 model SEO {
-  id          String    @id @default(uuid())
+  id          String       @id @default(uuid())
   account     Accounts?
   title       String
   description String
   image       String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  seoReport   SEOReport[]
+  seoKeywords SEOKeyword[]
+  seoPages    SEOPage[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model SEOKeyword {
+  id        String   @id @default(uuid())
+  seo       SEO      @relation(fields: [seoId], references: [id])
+  seoId     String
+  keyword   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SEOReport {
+  id        String   @id @default(uuid())
+  seo       SEO      @relation(fields: [seoId], references: [id])
+  seoId     String
+  score     Int?
+  report    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SEOPage {
+  id        String      @id @default(uuid())
+  seo       SEO         @relation(fields: [seoId], references: [id])
+  seoId     String
+  type      SEOPageType
+  title     String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
