@@ -27,6 +27,11 @@ enum SEOPageType {
   PRODUCT
 }
 
+enum SEOPageCreation {
+  NEW
+  EXISTING
+}
+
 enum BusinessType {
   ECOMMERCE
   SERVICE
@@ -163,7 +168,8 @@ model SEOPage {
   id        String      @id @default(uuid())
   seo       SEO         @relation(fields: [seoId], references: [id])
   seoId     String
-  type      SEOPageTypes[]
+  type      SEOPageTypes @relation(fields: [typeId], references: [id])
+  typeId    String
   keywords  SEOPageKeywords[]
   title     String
   createdAt DateTime    @default(now())
