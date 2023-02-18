@@ -163,8 +163,27 @@ model SEOPage {
   id        String      @id @default(uuid())
   seo       SEO         @relation(fields: [seoId], references: [id])
   seoId     String
-  type      SEOPageType
+  type      SEOPageTypes[]
+  keywords  SEOPageKeywords[]
   title     String
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+}
+
+model SEOPageTypes {
+  id        String      @id @default(uuid())
+  seoPages  SEOPage[]
+  type      SEOPageType @unique
+  display   String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model SEOPageKeywords {
+  id        String   @id @default(uuid())
+  seoPage   SEOPage  @relation(fields: [seoPageId], references: [id])
+  seoPageId String
+  keyword   String 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
