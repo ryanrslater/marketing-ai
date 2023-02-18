@@ -1,5 +1,6 @@
+import { PrismaClient } from "@prisma/client";
 import { OpenAIApi, Configuration } from "openai";
-import { SEOKeyword } from "@prisma/client";
+
 
 class SEO extends OpenAIApi {
     constructor() {
@@ -11,7 +12,7 @@ class SEO extends OpenAIApi {
         return data;
     }
 
-    async createReport(url: string, keywords: SEOKeyword[]): Promise<string> {
+    async createAudit(url: string, pageType: SEOPageTypes): Promise<string> {
         const html = await this.getHTML(url);
         const prompt = `Can your create a SEO report the following keywords: ${keywords.map((e) => e.keyword).join(", ")} based on this html file? ${html}`;
         const data = await this.createCompletion({

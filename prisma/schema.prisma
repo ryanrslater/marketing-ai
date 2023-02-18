@@ -138,13 +138,13 @@ model SEO {
   title       String
   description String
   image       String
-  seoReport   SEOReport[]
+  seoReport   SEOAudit[]
   seoPages    SEOPage[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
 
-model SEOReport {
+model SEOAudit {
   id        String   @id @default(uuid())
   seo       SEO      @relation(fields: [seoId], references: [id])
   seoId     String
