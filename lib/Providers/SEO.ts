@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, SEOPageKeywords, SEOPageLocations, SEOPageTypes } from "@prisma/client";
 import { OpenAIApi, Configuration } from "openai";
 
 
@@ -12,9 +12,12 @@ class SEO extends OpenAIApi {
         return data;
     }
 
-    async createAudit(url: string, pageType: SEOPageTypes): Promise<string> {
+    async createAudit(url: string, pageType: SEOPageTypes, keywords: SEOPageKeywords[], locations: SEOPageLocations[]): Promise<string> {
         const html = await this.getHTML(url);
-        const prompt = `Can your create a SEO report the following keywords: ${keywords.map((e) => e.keyword).join(", ")} based on this html file? ${html}`;
+        let prompt = `Can you create a SEO audit on this page: ${html} for a ${pageType.display} page`;
+        if (keywords.length > 0) prompt += ` with the following keywords: ${keywords.map((e) => e.keyword).join(", ")}`;
+        if (locations.length > 0) prompt += ` and the following locations: ${locations.map((e) => e.location).join(", ")}`;
+        prompt += "?";
         const data = await this.createCompletion({
             prompt,
             model: "text-davinci-002",
@@ -25,9 +28,12 @@ class SEO extends OpenAIApi {
         return data.data.choices[0].text;
     }
 
-    async createBlogPost(url: string, keywords: SEOKeyword[]): Promise<string> {
-        const html = await this.getHTML(url);
-        const prompt = `Can your create a blog post the following keywords: ${keywords.map((e) => e.keyword).join(", ")}`;
+    async createBlogPost(keywords: SEOPageKeywords[], locations: SEOPageLocations[]): Promise<string> {
+
+        let prompt = `Can your create a SEO optimised blog post`;
+        if (keywords.length > 0) prompt += ` with the following keywords: ${keywords.map((e) => e.keyword).join(", ")}`;
+        if (locations.length > 0) prompt += ` for the following locations: ${locations.map((e) => e.location).join(", ")}`;
+        prompt += "?";
         const data = await this.createCompletion({
             prompt,
             model: "text-davinci-002",
