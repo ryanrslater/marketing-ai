@@ -1,8 +1,8 @@
 import { PrismaClient, SEOPageKeywords, SEOPageLocations, SEOPageTypes } from "@prisma/client";
 import { OpenAIApi, Configuration } from "openai";
+import { SEOInterface } from "./SEOInterface";
 
-
-class SEO extends OpenAIApi {
+class SEO extends OpenAIApi implements SEOInterface {
     constructor() {
         super(new Configuration({ apiKey: process.env.OPENAI_API_KEY }));
     }
