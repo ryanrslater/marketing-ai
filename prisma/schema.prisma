@@ -55,6 +55,7 @@ model Users {
   accounts  Accounts[]
   tier      Tier       @relation(fields: [tierId], references: [id])
   stripe    Stripe?
+  sub       String     @unique
   tierId    String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -67,6 +68,7 @@ model Accounts {
   users           Users[]
   profile         String
   banner          String
+  domain        String
   owner           String
   primaryColor    String
   secondaryColor  String
@@ -133,15 +135,15 @@ model StripeWebhook {
 }
 
 model SEO {
-  id          String       @id @default(uuid())
+  id          String     @id @default(uuid())
   account     Accounts?
   title       String
   description String
   image       String
   seoReport   SEOAudit[]
   seoPages    SEOPage[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model SEOAudit {
@@ -155,16 +157,17 @@ model SEOAudit {
 }
 
 model SEOPage {
-  id        String      @id @default(uuid())
-  seo       SEO         @relation(fields: [seoId], references: [id])
+  id        String             @id @default(uuid())
+  seo       SEO                @relation(fields: [seoId], references: [id])
   seoId     String
-  type      SEOPageTypes @relation(fields: [typeId], references: [id])
+  type      SEOPageTypes       @relation(fields: [typeId], references: [id])
   typeId    String
+  path      String
   keywords  SEOPageKeywords[]
   locations SEOPageLocations[]
   title     String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
 }
 
 model SEOPageTypes {
@@ -180,7 +183,7 @@ model SEOPageKeywords {
   id        String   @id @default(uuid())
   seoPage   SEOPage  @relation(fields: [seoPageId], references: [id])
   seoPageId String
-  keyword   String 
+  keyword   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -189,7 +192,7 @@ model SEOPageLocations {
   id        String   @id @default(uuid())
   seoPage   SEOPage  @relation(fields: [seoPageId], references: [id])
   seoPageId String
-  location  String 
+  location  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
