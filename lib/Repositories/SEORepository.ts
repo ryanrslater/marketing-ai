@@ -1,15 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, TierTypes } from "@prisma/client";
 
 
 export class SEORepository extends PrismaClient {
-    private seoProvider: SEOInterface;
 
-    constructor(seo: SEOInterface) {
-        super();
-        this.seoProvider = seo;
-    }
-
-    async createNewSEO() {
+    async createNewSEOAccount() {
         const seo = await this.sEO.create({
             data: {
                 seoPages: {
@@ -32,11 +26,10 @@ export class SEORepository extends PrismaClient {
         return seo;
     }
 
-    async createAudit(sub: string, SeoId: string): Promise<string> {
+    async createAudit(sub: string, SeoId: string) {
         const user = await this.users.findUnique({
             where: {
                 sub,
-                seoId: SeoId,
             },
             include: {
                 accounts: {
@@ -48,6 +41,9 @@ export class SEORepository extends PrismaClient {
                                         keywords: true,
                                         locations: true,
                                         type: true,
+                                    },
+                                    where: {
+                                        id: SeoId
                                     }
                                 }
                             }
@@ -70,12 +66,9 @@ export class SEORepository extends PrismaClient {
         });
 
         if (!admin) throw new Error("Admin not found");
+        if (!user.accounts[0].seo) throw new Error("No SEO found");
 
-        if (admin.tier.name === "Free" && user.accounts[0].seo.seoPages.length > 1) throw new Error("You have reached your limit of 1 SEO page");
+        if (admin.tier.name === TierTypes.FREE && user.accounts[0].seo?.seoPages.length > 1) throw new Error("You have reached your limit of 1 SEO page");
 
-
-
-        const audit = await this.seo.createAudit(`${user.accounts[0].domain}${user.accounts[0].seo[0].seoPages[0].path}`, pageType, keywords, locations);
-        return audit;
     }
 }
