@@ -1,7 +1,7 @@
 import { PrismaClient, TierTypes } from "@prisma/client";
 
 
-export class SEORepository extends PrismaClient {
+class SEORepository extends PrismaClient {
 
     async createNewSEOAccount() {
         const seo = await this.sEO.create({
@@ -72,3 +72,5 @@ export class SEORepository extends PrismaClient {
 
     }
 }
+
+export default SEORepository;
